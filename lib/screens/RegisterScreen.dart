@@ -1,7 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../Auth.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
+
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
+  final Auth _auth = Auth();
+
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Registration successful!"))
+      );
+      Navigator.pop(context); // Navigate back to login or home
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? "Registration failed"))
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,98 +53,69 @@ class RegisterScreen extends StatelessWidget {
           physics: BouncingScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
-
-                // Title
-                const Text(
-                  "Create Account",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff1f41bb),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Create an account so you can explore all the existing jobs",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54,
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Input Fields
-                _buildTextField("Email", false),
-                const SizedBox(height: 20),
-                _buildTextField("Password", true),
-                const SizedBox(height: 20),
-                _buildTextField("Confirm Password", true),
-
-                const SizedBox(height: 30),
-
-                // Sign in Button
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff1f41bb),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 40),
+                  const Text(
+                    "Create Account",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff1f41bb),
                     ),
-                    elevation: 5,
-                    minimumSize: const Size(double.infinity, 50),
                   ),
-                  child: const Text(
-                    "Sign in",
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-
-                // Create new account Button
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Create an account so you can explore all the existing jobs",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
                     ),
-                    side: BorderSide(color: Colors.grey.shade400),
-                    minimumSize: const Size(double.infinity, 50),
                   ),
-                  child: const Text(
-                    "Create new account",
-                    style: TextStyle(fontSize: 16, color: Color(0xff494949)),
+                  const SizedBox(height: 30),
+                  _buildTextField("Email", false, _emailController, (value) {
+                    if (value == null || value.isEmpty || !value.contains('@')) {
+                      return 'Enter a valid email';
+                    }
+                    return null;
+                  }),
+                  const SizedBox(height: 20),
+                  _buildTextField("Password", true, _passwordController, (value) {
+                    if (value == null || value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  }),
+                  const SizedBox(height: 20),
+                  _buildTextField("Confirm Password", true, _confirmPasswordController, (value) {
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  }),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _register,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff1f41bb),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 5,
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                    child: _isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : const Text("Sign Up", style: TextStyle(fontSize: 20, color: Colors.white)),
                   ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Social Media Sign-in
-                const Text(
-                  "Or continue with",
-                  style: TextStyle(fontSize: 14, color: Color(0xff1f41bb)),
-                ),
-                const SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _socialMediaButton("assets/google_logo.png"),
-                    const SizedBox(width: 15),
-                    _socialMediaButton("assets/facebook_logo.png"),
-                    const SizedBox(width: 15),
-                    _socialMediaButton("assets/apple_logo.png"),
-                  ],
-                ),
-
-                const SizedBox(height: 40),
-              ],
+                  const SizedBox(height: 15),
+                ],
+              ),
             ),
           ),
         ),
@@ -111,9 +123,9 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
-  // Custom Text Field Widget
-  Widget _buildTextField(String hintText, bool isPassword) {
-    return TextField(
+  Widget _buildTextField(String hintText, bool isPassword, TextEditingController controller, String? Function(String?)? validator) {
+    return TextFormField(
+      controller: controller,
       obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hintText,
@@ -129,25 +141,7 @@ class RegisterScreen extends StatelessWidget {
           borderSide: const BorderSide(color: Color(0xff1f41bb), width: 2),
         ),
       ),
-    );
-  }
-
-  // Social Media Button
-  Widget _socialMediaButton(String assetPath) {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: const Color(0xffececec),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Center(
-        child: Image.asset(
-          assetPath,
-          width: 24,
-          height: 24,
-        ),
-      ),
+      validator: validator,
     );
   }
 }

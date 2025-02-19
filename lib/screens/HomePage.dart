@@ -4,24 +4,24 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Image at the top
-            Container(
-              width: 400, // Adjust width as needed
-              height: 400,
-              child: Image.asset('assets/homeP.png', fit: BoxFit.cover),
-            ),
-            SizedBox(height: 20),
+      body: Center(
+        child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Image at the top
+              SizedBox(
+                width: 300, // Adjust width for better centering
+                height: 300,
+                child: Image.asset('assets/homeP.png', fit: BoxFit.contain),
+              ),
+              const SizedBox(height: 20),
 
-            // Main Text
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20), // Prevents overflow
-              child: Text(
-                "Discover Your Dream Job Here",
+              // Main Text
+              const Text(
+                "Tunisia Artefacts",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
@@ -29,36 +29,35 @@ class HomePage extends StatelessWidget {
                   color: Color(0xff1f41bb),
                 ),
               ),
-            ),
-            SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            // Subtitle Text
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                "Explore all the existing job roles based on your interest and study major.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
+              // Subtitle Text
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                child: Text(
+                  "Discover the mystery and history behind this ancient artefact.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            // Buttons (Fixing Overflow)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(child: Property1active()),
-                  SizedBox(width: 10),
-                  Expanded(child: Property1Default()),
-                ],
+              // Buttons
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Column(
+                  children: [
+                    Property1active(),
+                    const SizedBox(height: 10),
+                    Property1Default(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -71,15 +70,16 @@ class Property1active extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/login'); // Navigate to the login page
+        Navigator.pushNamed(context, '/login');
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 15),
+        width: double.infinity, // Makes it stretch to full width
+        padding: const EdgeInsets.symmetric(vertical: 15),
         decoration: BoxDecoration(
-          color: Color(0xff1f41bb),
+          color: const Color(0xff1f41bb),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Center(
+        child: const Center(
           child: Text(
             'Login',
             style: TextStyle(
@@ -94,7 +94,7 @@ class Property1active extends StatelessWidget {
   }
 }
 
-//register
+// Register Button
 class Property1Default extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -103,13 +103,14 @@ class Property1Default extends StatelessWidget {
         Navigator.pushNamed(context, '/register');
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 15),
+        width: double.infinity, // Makes it stretch to full width
+        padding: const EdgeInsets.symmetric(vertical: 15),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.grey),
         ),
-        child: Center(
+        child: const Center(
           child: Text(
             'Register',
             style: TextStyle(
