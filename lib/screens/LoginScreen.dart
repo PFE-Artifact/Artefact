@@ -1,6 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool _isLoading = false;
+  String _errorMessage = '';
+
+  Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      // Navigate to home page after successful login
+      Navigator.pushReplacementNamed(context, "/accueil");
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? "An error occurred";
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,7 +50,6 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
                 const Text(
                   "Login here",
                   style: TextStyle(
@@ -33,26 +69,35 @@ class LoginScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Login Image
                 Center(
                   child: Image.asset(
-                    "assets/Login.png", // Make sure the image is in the assets folder
-                    width: 300, // Adjust width as needed
-                    height: 300, // Adjust height as needed
+                    "assets/Login.png",
+                    width: 300,
+                    height: 300,
                     fit: BoxFit.contain,
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
 
-                // Email & Password Fields
-                _buildTextField("Email", false),
+                // Email Field
+                _buildTextField(_emailController, "Email", false),
                 const SizedBox(height: 20),
-                _buildTextField("Password", true),
+
+                // Password Field
+                _buildTextField(_passwordController, "Password", true),
+
+                if (_errorMessage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Text(
+                      _errorMessage,
+                      style: TextStyle(color: Colors.red, fontSize: 14),
+                    ),
+                  ),
 
                 const SizedBox(height: 15),
 
-                // Forgot Password
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -71,7 +116,7 @@ class LoginScreen extends StatelessWidget {
 
                 // Login Button
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff1f41bb),
                     shape: RoundedRectangleBorder(
@@ -80,7 +125,9 @@ class LoginScreen extends StatelessWidget {
                     elevation: 5,
                     minimumSize: const Size(double.infinity, 50),
                   ),
-                  child: const Text(
+                  child: _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                     "Login",
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
@@ -88,7 +135,6 @@ class LoginScreen extends StatelessWidget {
 
                 const SizedBox(height: 30),
 
-                // Social Media Sign-in
                 const Center(
                   child: Text(
                     "Or continue with",
@@ -98,7 +144,9 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 15),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -112,7 +160,6 @@ class LoginScreen extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // Sign up option
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -144,8 +191,9 @@ class LoginScreen extends StatelessWidget {
   }
 
   // Custom TextField Widget
-  Widget _buildTextField(String hintText, bool isPassword) {
+  Widget _buildTextField(TextEditingController controller, String hintText, bool isPassword) {
     return TextField(
+      controller: controller,
       obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hintText,
