@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+import 'AccueilScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,6 +13,37 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> loginWithGoogle() async {
+    try {
+      await GoogleSignIn().signOut();
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      if (googleUser == null) {
+        print("Google sign-in was canceled.");
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      );
+
+      final UserCredential userCredential =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      if (userCredential.user != null) {
+        // Navigate to AccueilScreen after successful login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AccueilScreen()),
+        );
+      }
+    } catch (e) {
+      print("Google Sign-In Error: $e");
+    }
+  }
 
   bool _isLoading = false;
   String _errorMessage = '';
@@ -150,11 +184,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _socialMediaButton("assets/google_logo.png"),
+                    IconButton(
+                      onPressed: () async {
+                        await loginWithGoogle();
+                      },
+                      icon: _socialMediaButton("assets/google.png"),
+                    ),
                     const SizedBox(width: 15),
-                    _socialMediaButton("assets/facebook_logo.png"),
-                    const SizedBox(width: 15),
-                    _socialMediaButton("assets/apple_logo.png"),
+                    _socialMediaButton("assets/fb.png"),
                   ],
                 ),
 

@@ -1,6 +1,35 @@
 import 'package:flutter/material.dart';
 
-class AccueilScreen extends StatelessWidget {
+
+class AccueilScreen extends StatefulWidget {
+  @override
+  _AccueilScreenState createState() => _AccueilScreenState();
+}
+
+class _AccueilScreenState extends State<AccueilScreen> {
+  int _selectedIndex = 0;
+
+  // Function to handle BottomNavigationBar item taps
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Navigate to the respective screen based on the selected index
+    if (index == 1) {
+      // Navigate to Profile when the Profile tab is selected
+      Navigator.pushNamed(context, '/map');
+    }
+    if (index == 3) {
+      // Navigate to Profile when the Profile tab is selected
+      Navigator.pushNamed(context, '/profile');
+    }
+    if (index == 2) {
+      // Navigate to Profile when the Profile tab is selected
+      Navigator.pushNamed(context, '/map');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -9,9 +38,11 @@ class AccueilScreen extends StatelessWidget {
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.black54,
         showUnselectedLabels: true,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.info), label: "About us"),
+          BottomNavigationBarItem(icon: Icon(Icons.info), label: "Map"),
           BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: "Saved"),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
         ],
@@ -58,32 +89,47 @@ class AccueilScreen extends StatelessWidget {
             ),
             SizedBox(height: 16),
 
-            Row(
+            Column(
               children: [
-                GameCard(
-                  title: "Quizz",
-                  gameNumber: "Game 1",
-                  imagePath: "assets/icons/quizz.png",
-                  lineColor: Colors.blue,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, "/quizz");
+                        },
+                        child: GameCard(
+                          title: "Quizz",
+                          gameNumber: "Game 1",
+                          imagePath: "assets/cross.png",
+                          lineColor: Colors.blue,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 32), // Space between Quizz and Puzzle
+                    Expanded(
+                      child: GameCard(
+                        title: "Puzzle",
+                        gameNumber: "Game 3",
+                        imagePath: "assets/puzzle.png",
+                        lineColor: Colors.blue,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 16),
-                GameCard(
-                  title: "Puzzle",
-                  gameNumber: "Game 3",
-                  imagePath: "assets/icons/puzzle.png",
-                  lineColor: Colors.blue,
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
 
-            Row(
-              children: [
-                GameCard(
-                  title: "Treasure hunt",
-                  gameNumber: "Game 2",
-                  imagePath: "assets/icons/treasure.png",
-                  lineColor: Colors.blue,
+                SizedBox(height: 32), // Space between Game 1 and Game 2
+
+                Row(
+                  children: [
+                    GameCard(
+                      title: "Treasure hunt",
+                      gameNumber: "Game 2",
+                      imagePath: "assets/direction.png",
+                      lineColor: Colors.blue,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -159,3 +205,5 @@ class GameCard extends StatelessWidget {
     );
   }
 }
+
+

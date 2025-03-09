@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Auth.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -14,6 +15,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   bool _isLoading = false;
   final Auth _auth = Auth();
 
@@ -29,14 +32,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Registration successful!"))
-      );
-      Navigator.pop(context); // Navigate back to login or home
+
+      await Future.delayed(Duration(seconds: 1));
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'username': _usernameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'phoneNumber': _phoneController.text.trim(),
+          'score': 0,
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Registration successful!")));
+
+        Navigator.pop(context);
+      }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? "Registration failed"))
-      );
+          SnackBar(content: Text(e.message ?? "Registration failed")));
     } finally {
       setState(() {
         _isLoading = false;
@@ -78,6 +93,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
+                  _buildTextField("Username", false, _usernameController, (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Enter a username';
+                    }
+                    return null;
+                  }),
+                  const SizedBox(height: 20),
                   _buildTextField("Email", false, _emailController, (value) {
                     if (value == null || value.isEmpty || !value.contains('@')) {
                       return 'Enter a valid email';
@@ -95,6 +117,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   _buildTextField("Confirm Password", true, _confirmPasswordController, (value) {
                     if (value != _passwordController.text) {
                       return 'Passwords do not match';
+                    }
+                    return null;
+                  }),
+                  const SizedBox(height: 20),
+                  _buildTextField("Phone Number", false, _phoneController, (value) {
+                    if (value == null || value.isEmpty || value.length < 8) {
+                      return 'Enter a valid phone number';
                     }
                     return null;
                   }),

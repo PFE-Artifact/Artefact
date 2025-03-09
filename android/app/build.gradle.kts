@@ -7,6 +7,8 @@ plugins {
 }
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+    implementation ("com.google.android.gms:play-services-auth:21.3.0")
+
 }
 
 android {

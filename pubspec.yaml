@@ -36,6 +36,14 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_core: ^3.12.0
   firebase_auth: ^5.5.0
+  cloud_firestore: ^5.6.4
+  google_sign_in: ^6.2.2
+  provider: ^6.0.5
+  image_picker: ^1.0.5
+  http: ^1.1.0
+  path: ^1.8.3
+  firebase_storage: ^12.4.3
+
 
 dev_dependencies:
   flutter_test:
@@ -54,8 +62,20 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/homeP.png
-    - assets/Login.png
+      - assets/homeP.png
+      - assets/Login.png
+      - assets/cross.png
+      - assets/direction.png
+      - assets/puzzle.png
+      - assets/Constitution.jpg
+      - assets/HeritageTourism.jpg
+      - assets/IndependenceMovement.jpg
+      - assets/MedievalHistory.jpg
+      - assets/Carthaginian.jpg
+      - assets/roman-tunisia.jpg
+      - assets/google.png
+      - assets/fb.png
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
