@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:artefacts/main.dart'; // Adjust the import path if needed
+import 'BottomNavScreen.dart'; // Import BottomNavScreen
 
 class AccueilScreen extends StatefulWidget {
   @override
@@ -17,50 +20,53 @@ class _AccueilScreenState extends State<AccueilScreen> {
 
     // Navigate to the respective screen based on the selected index
     if (index == 1) {
-      // Navigate to Profile when the Profile tab is selected
+      // Navigate to Map when the Map tab is selected
       Navigator.pushNamed(context, '/map');
     }
-    if (index == 3) {
+    if (index == 4) {
       // Navigate to Profile when the Profile tab is selected
       Navigator.pushNamed(context, '/profile');
-    }
-    if (index == 2) {
-      // Navigate to Profile when the Profile tab is selected
-      Navigator.pushNamed(context, '/map');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Get the localizations
+    final localizations = AppLocalizations.of(context)!;
+    // Get the locale provider to check current language
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final isRTL = localeProvider.locale.languageCode == 'ar';
+
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.black54,
-        showUnselectedLabels: true,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.info), label: "Map"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: "Saved"),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
-        ],
+
+      bottomNavigationBar: BottomNavScreen(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: isRTL ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            // Header with Search
+            SizedBox(height:50), // Adds space at the top
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "My Artifacts",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                Icon(Icons.search, size: 28, color: Colors.black54),
+                if (!isRTL)
+                  Text(
+                    localizations.myArtifacts,
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                if (!isRTL)
+                  Icon(Icons.search, size: 28, color: Colors.black54),
+                if (isRTL)
+                  Icon(Icons.search, size: 28, color: Colors.black54),
+                if (isRTL)
+                  Text(
+                    localizations.myArtifacts,
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
               ],
             ),
             SizedBox(height: 50),
@@ -69,7 +75,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
             ElevatedButton.icon(
               onPressed: () {},
               icon: Icon(Icons.qr_code_scanner, color: Colors.white),
-              label: Text("Scan and identify the artifact"),
+              label: Text(localizations.scanArtifact),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF003ADD),
                 foregroundColor: Colors.white,
@@ -84,8 +90,9 @@ class _AccueilScreenState extends State<AccueilScreen> {
 
             // Games Section
             Text(
-              "Games",
+              localizations.games,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              textAlign: isRTL ? TextAlign.right : TextAlign.left,
             ),
             SizedBox(height: 16),
 
@@ -94,26 +101,53 @@ class _AccueilScreenState extends State<AccueilScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
+                    if (!isRTL) Expanded(
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pushNamed(context, "/quizz");
                         },
                         child: GameCard(
-                          title: "Quizz",
-                          gameNumber: "Game 1",
+                          title: localizations.quizz,
+                          gameNumber: localizations.game1,
                           imagePath: "assets/cross.png",
                           lineColor: Colors.blue,
+                          isRTL: isRTL,
                         ),
                       ),
                     ),
-                    SizedBox(width: 32), // Space between Quizz and Puzzle
-                    Expanded(
+                    if (!isRTL) SizedBox(width: 32), // Space between Quizz and Puzzle
+                    if (!isRTL) Expanded(
                       child: GameCard(
-                        title: "Puzzle",
-                        gameNumber: "Game 3",
+                        title: localizations.puzzle,
+                        gameNumber: localizations.game3,
                         imagePath: "assets/puzzle.png",
                         lineColor: Colors.blue,
+                        isRTL: isRTL,
+                      ),
+                    ),
+                    // For RTL layout
+                    if (isRTL) Expanded(
+                      child: GameCard(
+                        title: localizations.puzzle,
+                        gameNumber: localizations.game3,
+                        imagePath: "assets/puzzle.png",
+                        lineColor: Colors.blue,
+                        isRTL: isRTL,
+                      ),
+                    ),
+                    if (isRTL) SizedBox(width: 32), // Space between Puzzle and Quizz
+                    if (isRTL) Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, "/quizz");
+                        },
+                        child: GameCard(
+                          title: localizations.quizz,
+                          gameNumber: localizations.game1,
+                          imagePath: "assets/cross.png",
+                          lineColor: Colors.blue,
+                          isRTL: isRTL,
+                        ),
                       ),
                     ),
                   ],
@@ -122,12 +156,14 @@ class _AccueilScreenState extends State<AccueilScreen> {
                 SizedBox(height: 32), // Space between Game 1 and Game 2
 
                 Row(
+                  mainAxisAlignment: isRTL ? MainAxisAlignment.end : MainAxisAlignment.start,
                   children: [
                     GameCard(
-                      title: "Treasure hunt",
-                      gameNumber: "Game 2",
+                      title: localizations.treasureHunt,
+                      gameNumber: localizations.game2,
                       imagePath: "assets/direction.png",
                       lineColor: Colors.blue,
+                      isRTL: isRTL,
                     ),
                   ],
                 ),
@@ -138,8 +174,9 @@ class _AccueilScreenState extends State<AccueilScreen> {
             Divider(),
             SizedBox(height: 8),
             Text(
-              "Our latest work",
+              localizations.ourLatestWork,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              textAlign: isRTL ? TextAlign.right : TextAlign.left,
             ),
           ],
         ),
@@ -153,57 +190,99 @@ class GameCard extends StatelessWidget {
   final String gameNumber;
   final String imagePath;
   final Color lineColor;
+  final bool isRTL;
 
   const GameCard({
     required this.title,
     required this.gameNumber,
     required this.imagePath,
     required this.lineColor,
+    this.isRTL = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: isRTL ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: Colors.blue.shade50,
-            borderRadius: BorderRadius.circular(16),
+        if (!isRTL)
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Image.asset(imagePath, width: 40, height: 40),
+                ),
+                Positioned(
+                  left: 0,
+                  top: 12,
+                  bottom: 12,
+                  child: Container(width: 4, color: lineColor),
+                ),
+              ],
+            ),
           ),
-          child: Stack(
+        if (!isRTL) SizedBox(width: 10),
+        if (!isRTL)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.center,
-                child: Image.asset(imagePath, width: 40, height: 40),
+              Text(
+                gameNumber,
+                style: TextStyle(fontSize: 12, color: Colors.blueGrey, fontWeight: FontWeight.w500),
               ),
-              Positioned(
-                left: 0,
-                top: 12,
-                bottom: 12,
-                child: Container(width: 4, color: lineColor),
+              Text(
+                title,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
             ],
           ),
-        ),
-        SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              gameNumber,
-              style: TextStyle(fontSize: 12, color: Colors.blueGrey, fontWeight: FontWeight.w500),
+        // For RTL layout
+        if (isRTL)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                gameNumber,
+                style: TextStyle(fontSize: 12, color: Colors.blueGrey, fontWeight: FontWeight.w500),
+              ),
+              Text(
+                title,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+              ),
+            ],
+          ),
+        if (isRTL) SizedBox(width: 10),
+        if (isRTL)
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(16),
             ),
-            Text(
-              title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Image.asset(imagePath, width: 40, height: 40),
+                ),
+                Positioned(
+                  right: 0, // Changed from left to right for RTL
+                  top: 12,
+                  bottom: 12,
+                  child: Container(width: 4, color: lineColor),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
       ],
     );
   }
 }
-
-

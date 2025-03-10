@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 import 'AccueilScreen.dart';
+import 'package:artefacts/main.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -74,18 +77,76 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the localizations
+    final localizations = AppLocalizations.of(context)!;
+    // Get the locale provider to check current language
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final isRTL = localeProvider.locale.languageCode == 'ar';
+
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: PopupMenuButton<String>(
+              icon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                      localeProvider.locale.languageCode == 'en'
+                          ? '🇬🇧'
+                          : '🇹🇳',
+                      style: TextStyle(fontSize: 24)
+                  ),
+                  Icon(Icons.arrow_drop_down, color: Color(0xff1f41bb)),
+                ],
+              ),
+              onSelected: (String languageCode) {
+                if (languageCode == 'en') {
+                  localeProvider.setLocale(Locale('en'));
+                } else {
+                  localeProvider.setLocale(Locale('ar'));
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: 'en',
+                  child: Row(
+                    children: [
+                      Text('🇬🇧', style: TextStyle(fontSize: 24)),
+                      SizedBox(width: 10),
+                      Text('English'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'ar',
+                  child: Row(
+                    children: [
+                      Text('🇹🇳', style: TextStyle(fontSize: 24)),
+                      SizedBox(width: 10),
+                      Text('تونسي'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 50),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: isRTL ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Login here",
+                Text(
+                  localizations.loginHere,
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -93,8 +154,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  "Welcome back, you’ve been missed!",
+                Text(
+                  localizations.welcomeBack,
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.black54,
@@ -115,11 +176,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 30),
 
                 // Email Field
-                _buildTextField(_emailController, "Email", false),
+                _buildTextField(_emailController, localizations.email, false),
                 const SizedBox(height: 20),
 
                 // Password Field
-                _buildTextField(_passwordController, "Password", true),
+                _buildTextField(_passwordController, localizations.password, true),
 
                 if (_errorMessage.isNotEmpty)
                   Padding(
@@ -127,17 +188,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       _errorMessage,
                       style: TextStyle(color: Colors.red, fontSize: 14),
+                      textAlign: isRTL ? TextAlign.right : TextAlign.left,
                     ),
                   ),
 
                 const SizedBox(height: 15),
 
                 Align(
-                  alignment: Alignment.centerRight,
+                  alignment: isRTL ? Alignment.centerLeft : Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {},
-                    child: const Text(
-                      "Forgot your password?",
+                    child: Text(
+                      localizations.forgotPassword,
                       style: TextStyle(
                         fontSize: 14,
                         color: Color(0xff1f41bb),
@@ -161,17 +223,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: _isLoading
                       ? CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    "Login",
+                      : Text(
+                    localizations.login,
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
 
                 const SizedBox(height: 30),
 
-                const Center(
+                Center(
                   child: Text(
-                    "Or continue with",
+                    localizations.orContinueWith,
                     style: TextStyle(
                       fontSize: 14,
                       color: Color(0xff1f41bb),
@@ -200,16 +262,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Don't have an account?",
+                    Text(
+                      localizations.dontHaveAccount,
                       style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, "/register");
                       },
-                      child: const Text(
-                        "Sign up",
+                      child: Text(
+                        localizations.signUp,
                         style: TextStyle(
                           fontSize: 14,
                           color: Color(0xff1f41bb),
@@ -229,11 +291,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Custom TextField Widget
   Widget _buildTextField(TextEditingController controller, String hintText, bool isPassword) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final isRTL = localeProvider.locale.languageCode == 'ar';
+
     return TextField(
       controller: controller,
       obscureText: isPassword,
+      textAlign: isRTL ? TextAlign.right : TextAlign.left,
+      textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
       decoration: InputDecoration(
         hintText: hintText,
+        hintTextDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
         filled: true,
         fillColor: const Color(0xfff1f4ff),
         contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
