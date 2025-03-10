@@ -43,6 +43,12 @@ dependencies:
   http: ^1.1.0
   path: ^1.8.3
   firebase_storage: ^12.4.3
+  flutter_localization: ^0.3.1
+  intl: any
+  shared_preferences: ^2.2.0
+  flutter_dotenv: ^5.1.0
+  cached_network_image: ^3.2.0
+
 
 
 dev_dependencies:
@@ -61,6 +67,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
   assets:
       - assets/homeP.png
       - assets/Login.png
@@ -75,6 +82,7 @@ flutter:
       - assets/roman-tunisia.jpg
       - assets/google.png
       - assets/fb.png
+      - .env
 
 
   # The following line ensures that the Material Icons font is

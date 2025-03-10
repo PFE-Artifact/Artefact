@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import '../Auth.dart';
+// Import your LocaleProvider
+import 'package:artefacts/main.dart'; // Adjust the import path if needed
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -44,8 +48,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'score': 0,
         });
 
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Registration successful!")));
+            SnackBar(content: Text(localizations.registrationSuccessful)));
 
         Navigator.pop(context);
       }
@@ -61,8 +66,70 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the localizations
+    final localizations = AppLocalizations.of(context)!;
+    // Get the locale provider to check current language
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final isRTL = localeProvider.locale.languageCode == 'ar';
+
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Color(0xff1f41bb)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: PopupMenuButton<String>(
+              icon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                      localeProvider.locale.languageCode == 'en'
+                          ? '🇬🇧'
+                          : '🇹🇳',
+                      style: TextStyle(fontSize: 24)
+                  ),
+                  Icon(Icons.arrow_drop_down, color: Color(0xff1f41bb)),
+                ],
+              ),
+              onSelected: (String languageCode) {
+                if (languageCode == 'en') {
+                  localeProvider.setLocale(Locale('en'));
+                } else {
+                  localeProvider.setLocale(Locale('ar'));
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: 'en',
+                  child: Row(
+                    children: [
+                      Text('🇬🇧', style: TextStyle(fontSize: 24)),
+                      SizedBox(width: 10),
+                      Text('English'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'ar',
+                  child: Row(
+                    children: [
+                      Text('🇹🇳', style: TextStyle(fontSize: 24)),
+                      SizedBox(width: 10),
+                      Text('تونسي'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
@@ -71,21 +138,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: isRTL ? CrossAxisAlignment.end : CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  const Text(
-                    "Create Account",
+                  Text(
+                    localizations.createAccount,
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                       color: Color(0xff1f41bb),
                     ),
+                    textAlign: isRTL ? TextAlign.right : TextAlign.center,
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    "Create an account so you can explore all the existing jobs",
-                    textAlign: TextAlign.center,
+                  Text(
+                    localizations.createAccountDescription,
+                    textAlign: isRTL ? TextAlign.right : TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -93,37 +161,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  _buildTextField("Username", false, _usernameController, (value) {
+                  _buildTextField(localizations.username, false, _usernameController, (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter a username';
+                      return localizations.enterUsername;
                     }
                     return null;
                   }),
                   const SizedBox(height: 20),
-                  _buildTextField("Email", false, _emailController, (value) {
+                  _buildTextField(localizations.email, false, _emailController, (value) {
                     if (value == null || value.isEmpty || !value.contains('@')) {
-                      return 'Enter a valid email';
+                      return localizations.enterValidEmail;
                     }
                     return null;
                   }),
                   const SizedBox(height: 20),
-                  _buildTextField("Password", true, _passwordController, (value) {
+                  _buildTextField(localizations.password, true, _passwordController, (value) {
                     if (value == null || value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return localizations.passwordMinLength;
                     }
                     return null;
                   }),
                   const SizedBox(height: 20),
-                  _buildTextField("Confirm Password", true, _confirmPasswordController, (value) {
+                  _buildTextField(localizations.confirmPassword, true, _confirmPasswordController, (value) {
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return localizations.passwordsDoNotMatch;
                     }
                     return null;
                   }),
                   const SizedBox(height: 20),
-                  _buildTextField("Phone Number", false, _phoneController, (value) {
+                  _buildTextField(localizations.phoneNumber, false, _phoneController, (value) {
                     if (value == null || value.isEmpty || value.length < 8) {
-                      return 'Enter a valid phone number';
+                      return localizations.enterValidPhoneNumber;
                     }
                     return null;
                   }),
@@ -140,7 +208,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     child: _isLoading
                         ? CircularProgressIndicator(color: Colors.white)
-                        : const Text("Sign Up", style: TextStyle(fontSize: 20, color: Colors.white)),
+                        : Text(localizations.signUp, style: TextStyle(fontSize: 20, color: Colors.white)),
                   ),
                   const SizedBox(height: 15),
                 ],
@@ -153,11 +221,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildTextField(String hintText, bool isPassword, TextEditingController controller, String? Function(String?)? validator) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final isRTL = localeProvider.locale.languageCode == 'ar';
+
     return TextFormField(
       controller: controller,
       obscureText: isPassword,
+      textAlign: isRTL ? TextAlign.right : TextAlign.left,
+      textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
       decoration: InputDecoration(
         hintText: hintText,
+        hintTextDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
         filled: true,
         fillColor: const Color(0xfff1f4ff),
         contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),

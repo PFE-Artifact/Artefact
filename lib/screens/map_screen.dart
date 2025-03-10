@@ -156,7 +156,7 @@ class MapScreen extends StatelessWidget {
   }
 
   void _handleNodeTap(BuildContext context, GameState gameState, int levelId, int lastCompletedLevel, int nextLevel) {
-    if (levelId == lastCompletedLevel || levelId == nextLevel) {
+    if (levelId == lastCompletedLevel || levelId == nextLevel || lastCompletedLevel >= levelId) {
       gameState.setCurrentLevel(levelId);
       Navigator.push(
         context,
