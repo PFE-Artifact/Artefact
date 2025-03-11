@@ -254,15 +254,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // Profile Image
-              Center(
-                child: Stack(
-                  children: [
+                Center(
+                  child: Stack(
+                    children: [
                     CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.orange,

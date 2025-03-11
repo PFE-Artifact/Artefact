@@ -2,6 +2,8 @@ import 'package:artefacts/screens/ProfileScreen.dart';
 import 'package:artefacts/screens/QuizT1H/BeginnerT1H.dart';
 import 'package:artefacts/screens/QuizT1H/Level1T_H.dart';
 import 'package:artefacts/screens/Quizz.dart';
+import 'package:artefacts/screens/blog_detail_screen.dart';
+import 'package:artefacts/screens/blog_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:artefacts/screens/HomePage.dart';
@@ -15,8 +17,8 @@ import 'package:provider/provider.dart';
 // Add these imports for localization
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-// Add theme provider for dark/light mode
 import 'package:artefacts/providers/theme_provider.dart';
+
 
 // Create a locale provider to manage language changes
 class LocaleProvider extends ChangeNotifier {
@@ -132,6 +134,11 @@ class MyApp extends StatelessWidget {
         '/map': (context) => const MapScreen(),
         '/questions': (context) => const QuestionScreen(levelId: 1,),
         '/profile': (context) => ProfileScreenWrapper(),
+        '/blog': (context) => BlogListScreen(),
+
+
+        // Add blog-related routes
+
       },
     );
   }
@@ -150,3 +157,7 @@ class ProfileScreenWrapper extends StatelessWidget {
     return ProfileScreen(themeProvider: themeProvider);
   }
 }
+
+
+
+

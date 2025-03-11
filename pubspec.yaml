@@ -48,6 +48,8 @@ dependencies:
   shared_preferences: ^2.2.0
   flutter_dotenv: ^5.1.0
   cached_network_image: ^3.2.0
+  carousel_slider: ^5.0.0
+  timeago: ^3.5.0
 
 
 
