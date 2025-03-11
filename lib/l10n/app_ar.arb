@@ -38,5 +38,36 @@
   "game1": "اللعبة 1",
   "game2": "اللعبة 2",
   "game3": "اللعبة 3",
-  "ourLatestWork": "أحدث أعمالنا"
+  "ourLatestWork": "أحدث أعمالنا",
+
+  "@@locale": "ar",
+  "my_account": "حسابي",
+  "select_image_source": "حدد مصدر الصورة",
+  "camera": "كاميرا",
+  "gallery": "المعرض",
+  "error_loading_user_data": "خطأ في تحميل بيانات المستخدم: {error}",
+  "error_updating_setting": "خطأ في تحديث الإعداد: {error}",
+  "profile_picture_updated": "تم تحديث صورة الملف الشخصي بنجاح!",
+  "error_updating_profile_picture": "خطأ في تحديث صورة الملف الشخصي: {error}",
+  "personal_info": "المعلومات الشخصية",
+  "your_name": "اسمك",
+  "not_set": "غير محدد",
+  "phone_number": "رقم الهاتف",
+  "email_address": "عنوان البريد الإلكتروني",
+  "settings": "الإعدادات",
+  "allow_face_id": "السماح بـ Face ID",
+  "use_face_id": "استخدم Face ID للدخول إلى التطبيق",
+  "showing_coins": "عرض العملات",
+  "show_coins_description": "المبالغ بتنسيق 00.00",
+  "incognito_mode": "وضع التخفي",
+  "incognito_mode_description": "سيتم إخفاء الرصيد",
+  "change_app_code": "رمز الدخول إلى التطبيق",
+  "change_entrance_code": "تغيير رمز الدخول",
+  "language": "اللغة",
+  "english": "الإنجليزية",
+  "arabic": "العربية",
+  "select_language": "حدد اللغة",
+  "logout": "تسجيل الخروج"
+
+
 }
