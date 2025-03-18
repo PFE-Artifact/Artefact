@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './model/game_state.dart';
 import './model/level.dart';
-import './model/question.dart';
+// Use 'as' prefix to resolve the naming conflict
+import './model/question.dart' as question_model;
 import '../screens/widgets/option_button.dart';
 import 'map_screen.dart';
 
@@ -49,7 +50,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
       );
     }
 
-    final Question currentQuestion = _level!.questions[_currentQuestionIndex];
+    // Use the Question type from the level.dart file
+    final currentQuestion = _level!.questions[_currentQuestionIndex];
 
     return Scaffold(
       backgroundColor: const Color(0xFF90ADFF), // Set the background color here
@@ -157,7 +159,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
     if (success) {
       gameState.completeLevel(widget.levelId);
-      await _updateUserProgress(widget.levelId); // ✅ Save progress in Firestore
+      await _updateThemeProgress(gameState, widget.levelId); // Updated method call
     }
 
     showDialog(
@@ -187,29 +189,55 @@ class _QuestionScreenState extends State<QuestionScreen> {
     );
   }
 
-  /// Updates the last completed level in Firestore for the user
-  Future<void> _updateUserProgress(int levelId) async {
+  /// Updates the theme progress in Firestore for the user
+  Future<void> _updateThemeProgress(GameState gameState, int levelId) async {
     try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        DocumentReference userRef =
-        FirebaseFirestore.instance.collection('users').doc(user.uid);
+      // Get the current theme ID
+      String currentTheme = gameState.currentTheme;
 
-        // Get the current user progress
-        DocumentSnapshot userSnapshot = await userRef.get();
-        int currentLevel = userSnapshot.exists && userSnapshot['lastCompletedLevel'] != null
-            ? userSnapshot['lastCompletedLevel']
-            : 0;
+      // Debug print to verify the theme ID
+      debugPrint("🔄 Updating progress for theme: $currentTheme");
 
-        // Only update if the completed level is greater than the saved one
-        if (levelId > currentLevel) {
-          await userRef.update({'lastCompletedLevel': levelId});
-          print("🔥 Level $levelId saved in Firestore!");
-        }
+      // Make sure we're using the correct theme ID format that matches the database
+      if (currentTheme == "Colonial_and_Modern") {
+        currentTheme = "Colonial and Modern";
+        debugPrint("🔄 Corrected theme ID to: $currentTheme");
       }
-    } catch (e) {
-      print("❌ Error updating level progress: $e");
+
+      // Get current progress
+      int currentProgress = gameState.themeProgress[currentTheme] ?? 0;
+      debugPrint("📊 Current progress: $currentProgress, Completed level: $levelId");
+
+      // Only update if this level is higher than current progress
+      if (levelId > currentProgress) {
+        debugPrint("📝 Updating progress to level: $levelId");
+
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          debugPrint("⚠️ No user logged in");
+          return;
+        }
+
+        // Update the progress directly in Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'themeProgress.$currentTheme': levelId});
+
+        // Also update the local state
+        gameState.themeProgress[currentTheme] = levelId;
+
+        debugPrint("✅ Updated theme progress for $currentTheme to level $levelId");
+
+        // Force refresh theme progress
+        await gameState.fetchThemeProgress();
+      } else {
+        debugPrint("ℹ️ No need to update progress: current=$currentProgress, completed=$levelId");
+      }
+    } catch (e, stacktrace) {
+      debugPrint("❌ Error updating theme progress: $e");
+      debugPrint(stacktrace.toString());
     }
   }
-
 }
+

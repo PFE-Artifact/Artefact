@@ -437,7 +437,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () async {
                     await _auth.signOut();
                     if (mounted) {
-                      Navigator.of(context).pushReplacementNamed('/login');
+                      Navigator.of(context).pushReplacementNamed('/SignInSignUp');
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -593,8 +593,8 @@ class _ProfilePageState extends State<ProfilePage> {
       final user = FirebaseAuth.instance.currentUser;
 
       if (user == null) {
-        // If no user is logged in, redirect to login
-        Navigator.of(context).pushReplacementNamed('/login');
+        // If no user is logged in, redirect to SignInSignUp
+        Navigator.of(context).pushReplacementNamed('/SignInSignUp');
         return;
       }
 
@@ -866,9 +866,9 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       await FirebaseAuth.instance.signOut();
 
-      // Navigate to login page after sign out
+      // Navigate to SignInSignUp page after sign out
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/login');
+        Navigator.of(context).pushReplacementNamed('/SignInSignUp');
       }
     } catch (error) {
       if (mounted) {

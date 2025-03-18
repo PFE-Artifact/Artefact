@@ -4,8 +4,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import 'AccueilScreen.dart';
+import '../AccueilScreen.dart';
 import 'package:artefacts/main.dart';
+import '../forget_password/forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -37,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await FirebaseAuth.instance.signInWithCredential(credential);
 
       if (userCredential.user != null) {
-        // Navigate to AccueilScreen after successful login
+        // Navigate to AccueilScreen after successful SignInSignUp
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AccueilScreen()),
@@ -62,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Navigate to home page after successful login
+      // Navigate to home page after successful SignInSignUp
       Navigator.pushReplacementNamed(context, "/accueil");
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -73,6 +74,16 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  // Method to navigate to the forgot password screen
+  void _navigateToForgotPassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ForgotPasswordScreen(),
+      ),
+    );
   }
 
   @override
@@ -197,7 +208,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Align(
                   alignment: isRTL ? Alignment.centerLeft : Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _navigateToForgotPassword();
+                    },
                     child: Text(
                       localizations.forgotPassword,
                       style: TextStyle(
@@ -336,3 +349,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

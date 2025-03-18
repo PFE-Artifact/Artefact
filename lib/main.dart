@@ -1,20 +1,17 @@
 import 'package:artefacts/screens/ProfileScreen.dart';
-import 'package:artefacts/screens/QuizT1H/BeginnerT1H.dart';
-import 'package:artefacts/screens/QuizT1H/Level1T_H.dart';
 import 'package:artefacts/screens/Quizz.dart';
 import 'package:artefacts/screens/blog_detail_screen.dart';
 import 'package:artefacts/screens/blog_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:artefacts/screens/HomePage.dart';
-import 'package:artefacts/screens/LoginScreen.dart';
-import 'package:artefacts/screens/RegisterScreen.dart';
+import 'package:artefacts/screens/SignInSignUp/LoginScreen.dart';
+import 'package:artefacts/screens/SignInSignUp/RegisterScreen.dart';
 import 'package:artefacts/screens/AccueilScreen.dart';
 import 'screens/question_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/model/game_state.dart';
 import 'package:provider/provider.dart';
-// Add these imports for localization
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:artefacts/providers/theme_provider.dart';
@@ -125,12 +122,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => HomePage(),
-        '/login': (context) => LoginScreen(),
+        '/SignInSignUp': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
         '/accueil': (context) => AccueilScreen(),
         '/quizz': (context) => Quizz(),
-        '/Level1T_H': (context) => Level1T_H(),
-        '/BeginnerT1H': (context) => BeginnerT1H(),
         '/map': (context) => const MapScreen(),
         '/questions': (context) => const QuestionScreen(levelId: 1,),
         '/profile': (context) => ProfileScreenWrapper(),

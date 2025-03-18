@@ -3,8 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../Auth.dart';
-// Import your LocaleProvider
+import 'Auth.dart';
 import 'package:artefacts/main.dart'; // Adjust the import path if needed
 
 class RegisterScreen extends StatefulWidget {

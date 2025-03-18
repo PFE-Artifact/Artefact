@@ -1,22 +1,107 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import './model/game_state.dart';
 import './widgets/hexagon_node.dart';
 import './widgets/map_connector.dart';
 import 'question_screen.dart';
 
-class MapScreen extends StatelessWidget {
+class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
+
+  @override
+  State<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  String _themeTitle = 'Map';
+  bool _isInitialized = false;
+  bool _isLoading = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isInitialized) {
+      _initializeTheme();
+      _isInitialized = true;
+    }
+  }
+
+  Future<void> _initializeTheme() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get theme data from route arguments if available
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      if (args != null) {
+        // Set the theme title
+        if (args.containsKey('title')) {
+          setState(() {
+            _themeTitle = args['title'];
+          });
+        }
+
+        // Get the GameState
+        final gameState = Provider.of<GameState>(context, listen: false);
+
+        // If themeId is directly provided, use it
+        if (args.containsKey('themeId')) {
+          String themeId = args['themeId'];
+          await gameState.setCurrentTheme(themeId);
+        }
+        // Otherwise, try to derive it from the title
+        else if (args.containsKey('title')) {
+          String themeId = _getThemeIdFromTitle(args['title']);
+          await gameState.setCurrentTheme(themeId);
+        }
+
+        // Fetch theme progress if not already loaded
+        if (gameState.themeProgress.isEmpty) {
+          await gameState.fetchThemeProgress();
+        }
+      }
+    } catch (e) {
+      debugPrint("Error initializing theme: $e");
+      // Show error message to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading theme: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Update the _getThemeIdFromTitle method to ensure consistent theme IDs
+  String _getThemeIdFromTitle(String title) {
+    // Map theme titles to their corresponding IDs in Firestore
+    switch (title) {
+      case 'Punic Carthaginian':
+        return 'punic_carthaginian';
+      case 'Islamic_Period':
+        return 'Islamic_Period';
+      case 'Roman and Byzantine':
+        return 'Roman_and_Byzantine';
+      case 'Colonial and Modern':
+      // Return the exact format used in the database
+        return 'Colonial and Modern';
+      default:
+        return title.replaceAll(' ', '_').toLowerCase(); // Default conversion
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Map 1',
-          style: TextStyle(
+        title: Text(
+          _themeTitle,
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
@@ -30,6 +115,20 @@ class MapScreen extends StatelessWidget {
           },
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.black),
+            onPressed: () async {
+              // Reload levels
+              final gameState = Provider.of<GameState>(context, listen: false);
+              setState(() {
+                _isLoading = true;
+              });
+              await gameState.fetchLevels();
+              setState(() {
+                _isLoading = false;
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.more_vert, color: Colors.black),
             onPressed: () {
@@ -45,42 +144,73 @@ class MapScreen extends StatelessWidget {
             'https://i.pinimg.com/736x/ba/63/77/ba6377e9bd66d11c17a9f884e20bf63f.jpg',
             fit: BoxFit.cover,
           ),
-          Consumer<GameState>(
-            builder: (context, gameState, child) {
-              return FutureBuilder<int>(
-                future: _fetchLastCompletedLevel(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            )
+          else
+            Consumer<GameState>(
+              builder: (context, gameState, child) {
+                if (gameState.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Error: ${gameState.error}',
+                          style: const TextStyle(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () async {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            gameState.clearError();
+                            await gameState.fetchLevels();
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-                  int lastCompletedLevel = snapshot.data ?? 1;
-                  int nextLevel = lastCompletedLevel + 1;
-                  gameState.setCurrentLevel(nextLevel);
+                if (gameState.levels.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'No levels found for this theme',
+                          style: TextStyle(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "/accueil");
+                          },
+                          child: const Text('Go Back'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-                  return _buildMap(context, gameState, lastCompletedLevel, nextLevel);
-                },
-              );
-            },
-          ),
+                int lastCompletedLevel = gameState.getLastCompletedLevel();
+                int nextLevel = lastCompletedLevel + 1;
+
+                return _buildMap(context, gameState, lastCompletedLevel, nextLevel);
+              },
+            ),
         ],
       ),
-
     );
-  }
-
-  Future<int> _fetchLastCompletedLevel() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      DocumentSnapshot doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      if (doc.exists && doc.data() != null) {
-        return doc['lastCompletedLevel'] ?? 1;
-      }
-    }
-    return 1; // Default to level 1 if no user data found
   }
 
   Widget _buildMap(BuildContext context, GameState gameState, int lastCompletedLevel, int nextLevel) {
@@ -144,19 +274,35 @@ class MapScreen extends StatelessWidget {
   }
 
   HexagonNodeStatus _getNodeStatus(GameState gameState, int levelId, int lastCompletedLevel, int nextLevel) {
-    if (levelId == lastCompletedLevel) {
-      return HexagonNodeStatus.completed; // Allow user to open the last completed level
-    } else if (levelId == nextLevel) {
-      return HexagonNodeStatus.unlocked; // Unlock next level
-    } else if (levelId < lastCompletedLevel) {
-      return HexagonNodeStatus.completed; // Mark older levels as completed
-    } else {
-      return HexagonNodeStatus.locked; // Lock future levels
+    // Get the current theme progress (0 if no progress)
+    int themeProgress = gameState.themeProgress[gameState.currentTheme] ?? 0;
+
+    // If level is already completed
+    if (levelId <= themeProgress) {
+      return HexagonNodeStatus.completed;
     }
+
+    // If this is the next level after the last completed one
+    if (levelId == themeProgress + 1) {
+      return HexagonNodeStatus.unlocked;
+    }
+
+    // All other levels should be locked
+    return HexagonNodeStatus.locked;
   }
 
+// Also update the _handleNodeTap method to add debug logging
   void _handleNodeTap(BuildContext context, GameState gameState, int levelId, int lastCompletedLevel, int nextLevel) {
-    if (levelId == lastCompletedLevel || levelId == nextLevel || lastCompletedLevel >= levelId) {
+    // Get the current theme progress
+    int themeProgress = gameState.themeProgress[gameState.currentTheme] ?? 0;
+
+    // Debug print to help diagnose issues
+    debugPrint("🎮 Tapped level $levelId in theme ${gameState.currentTheme}");
+    debugPrint("📊 Current theme progress: $themeProgress");
+    debugPrint("🔓 Last completed level: $lastCompletedLevel");
+
+    // Allow access if the level is completed or is the next unlocked level
+    if (levelId <= themeProgress || levelId == themeProgress + 1) {
       gameState.setCurrentLevel(levelId);
       Navigator.push(
         context,
@@ -165,7 +311,11 @@ class MapScreen extends StatelessWidget {
         ),
       );
     } else {
-      // Optionally, add a shake animation or alert for locked levels
+      // Show a message for locked levels
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Complete level ${themeProgress + 1} first!')),
+      );
     }
   }
 }
+

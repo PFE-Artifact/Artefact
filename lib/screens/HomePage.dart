@@ -140,7 +140,7 @@ class Property1active extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/login');
+        Navigator.pushNamed(context, '/SignInSignUp');
       },
       child: Container(
         width: double.infinity, // Makes it stretch to full width

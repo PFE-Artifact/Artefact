@@ -38,5 +38,20 @@
     "game1": "Game 1",
     "game2": "Game 2",
     "game3": "Game 3",
-    "ourLatestWork": "Our latest work"
+    "ourLatestWork": "Our latest work",
+
+    "enterEmailForReset": "Please enter your email address to receive password reset instructions",
+    "emailRequired": "Email is required",
+    "invalidEmail": "Please enter a valid email",
+    "reset": "Reset",
+    "resetPassword": "Reset Password",
+    "resetPasswordInstructions": "Enter your email address below and we'll send you instructions to reset your password",
+    "success": "Success",
+    "resetEmailSent": "Password reset instructions have been sent to your email",
+    "ok": "OK",
+    "emailNotFound": "Email Not Found",
+    "emailNotRegistered": "This email is not registered in our system.",
+    "createAccountPrompt": "Would you like to create a new account?",
+    "error": "Error",
+    "cancel": "Cancel"
 }
