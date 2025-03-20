@@ -31,7 +31,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
     }
     if (index == 3) {
       // Navigate to Profile when the Profile tab is selected
-      Navigator.pushNamed(context, '/maprome');
+      Navigator.pushNamed(context, '/vv');
     }
   }
 
